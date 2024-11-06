@@ -1,0 +1,43 @@
+Navigation
+
+ls: Lists files/folders
+ls -l: Extra details (who modified, when, etc.)
+cd [folder_name]: Go into a folder
+pwd: "Where am I?" Prints current location
+cd ..: Go up one level
+cd -: Jump to the previous location
+cd ~: Back to your home directory
+
+______________________________________________________________________________
+Creating Files and Folders
+
+mkdir [name]: Make a directory
+touch [name]: Create a file
+cp [old_name] [new_name]: Copy a file
+cp -r [old_dir] [new_dir]: Copy a whole directory
+Deletion Danger Zone
+
+rmdir [name]: Delete an empty directory
+rm -rf [name]: Delete a directory and everything in it!
+rm [name]: Delete a file
+rm -f [name]: Force deletion
+______________________________________________________________________________
+Move + Rename
+
+mv [old] [new]: Move a file/folder OR rename it
+
+______________________________________________________________________________
+Useful Shortcuts
+
+Up Arrow: Get your last command back
+Tab: Auto-complete names
+history: View your command history
+clear: Tidy up your terminal window
+
+______________________________________________________________________________
+
+Opening Folders and VSCode
+
+explorer . : Open folder with GUI (current path)
+
+code . : Open folder GUI in VSCode (current path) if Mac/Linux (Code .)
