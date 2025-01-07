@@ -45,6 +45,17 @@
 - **ArrayIndexOutOfBoundsException**
 - **Disadvantages of Array**
 
+## List
+
+- **Why a list?**
+- **Creating A List**
+- **A List Vs An Array**
+- **Different ways to create a List**
+- **Enhanced For Loop**
+- **Anonymous List**
+- **ListIndexOutOfBoundsException**
+- **Disadvantages of List**
+
 ## Strings
 
 - **String Introduction**
