@@ -1,0 +1,375 @@
+Step 1. Need to create IAM user in AWS IAM
+
+a. Login to AWS Console
+Go to the AWS Management Console.
+Sign in with your AWS credentials.
+
+b. Navigate to IAM (Identity and Access Management)
+In the AWS Management Console, type "IAM" in the search bar and click on IAM (Identity and Access Management) from the search results.
+
+c. Create a New User
+On the left-hand menu, click on Users.
+Then, click on the Add users button.
+
+d. Set Up the New User
+User name: Enter a name for the user (e.g., s3-user).
+Access type: Select the checkbox for Programmatic access. This will allow the user to use the AWS CLI, SDKs, or other tools to interact with AWS programmatically.
+Click Next: Permissions to proceed.
+
+e. Attach Permissions (Grant S3 Access)
+On the Set permissions page, choose Attach policies directly.
+In the search bar, type AmazonS3FullAccess and select the policy that appears.
+AmazonS3FullAccess provides the user full access to all S3 actions. If you want more restrictive access, you can choose a different policy or create a custom one.
+Click Next: Tags (optional).
+f. (Optional) Add Tags
+
+You can add key-value pairs (tags) to help identify or categorize this user (this is optional and can be skipped).
+After adding tags (if needed), click Next: Review.
+g. Review and Create the User
+Review all the settings you’ve selected (programmatic access, policy, etc.).
+Once everything looks good, click Create user.
+
+h. Download the Credentials
+After successfully creating the user, you will see a screen displaying the Access Key ID and Secret Access Key.
+Important: Download these credentials as a CSV file or copy them and store them in a safe place. You won't be able to view the secret access key again after this point.
+These credentials are required to interact with AWS programmatically (e.g., via the AWS SDK or CLI).
+What You Should Have Now:
+Access Key ID: This is the public identifier for the IAM user.
+Secret Access Key: This is the private key used to authenticate the programmatic requests made to AWS.
+
+i. cli command --> aws --version (If you don't have install AWS cli)
+
+j. cli command --> aws configure (to access AWS IMA account)
+Use keys from csv file which you have downloaded. (eg. saixxxx_accessKeys.csv)
+
+
+Step 2. Create new bucket in AWS S3
+
+1. aws s3 ls (to see S3 buckets list)
+
+2. cli command --> aws s3api create-bucket --bucket <bucket-name> --region us-east-1 (Create Bucket)
+
+3. Download Zip-file (code.zip)
+
+a. Download zip-file link --> (https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/CUR-TF-200-ACCDEV-2-91558/05-lab-lambda/code.zip)
+
+b. Extract and open in VScode
+
+c. cli command --> aws s3 cp resources/website s3://<bucket-name>/ --recursive --cache-control "max-age=0" (to add website folder to S3 means website files to S3 bucket such as index.html, style.css, assets and so on)
+You will see all the website file in the S3 bucket
+
+4. Go to the index.html and copy the Object URL (eg. https://hello-bad-cafe.s3.us-east-I.a mazonaws.com/index.html) and paste in your browser.
+You will see the --> Access Denied
+
+5. To solve Access Denied, go to --> (https://whatismyipaddress.com/) in your browser
+Copy IPV4 address
+
+6. Go to public_policy.json in resources folder in code.zip folder (location --> code/resources/public_police.json)
+How to Add public_policy.json to Bucket policy in your <bracket-name> permission
+Steps as blow:
+a. edit public_policy.json in Vscode (eg... <FMI1> with bracket-name, <FMI2> with ip address (which you have copied in step 5))
+b. edit permission.py file too (like above one) and edit --> policy_file = open("resources/public_policy.json", "r")
+c. Go to "Bucket Permission" in AWS S3 and Click on Edit at "Bucket Policy" 	
+Choose this three: 
+- Block public access to buckets and objects granted through new access control lists (ACLs)
+- Block public access to buckets and objects granted through any access control lists (ACLs)
+- Block public and cross-account access to buckets and objects through any public bucket or access point policies
+Click Save
+d. Check boto3 cli command --> pip show boto3 (If you haven't install boto3 cli command --> pip install boto3)
+If you don't install boto3, you could not run python files. (eg. permission.py, so on)
+e. run code --> python resources/permission.py or python3 resources/permission.py (you will see the output --> Setting Permissions - DONE)
+
+You have solved about Access Denied and Added policy to the Bucket policy (you will see codes in Bucket policy).
+Now you can access index.html url (from Step 4)
+
+Step 3. Create Table in AWS Dynamo DB and Add items (Data) from all_products.json in website folder in DynomoDB folder (code.zip) and Add Indexes to Table in Dynamo DB
+
+1. Create Table in AWS Dynamo
+If there is no table in DynamoDB (Create Table in DynamoDB)
+Steps as below:
+a. Copy this link and paste to your browser (https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/CUR-TF-200-ACCDEV-2-91558/03-lab-dynamo/code.zip)
+b. Extract zip file and Rename folder to DynamoDB and Open in VsCode
+c. go to python_3 and choose create_table.py 
+d. edit create_table.py (eg... <FMI1> with product name --> FoodProducts)
+e. run code --> python python_3/create_table.py (You will see DONE)
+If you see that error:
+Traceback (most recent call last):
+  File "C:\Users\saihe\Downloads\code (1)\python_3\batch_put.py", line 36, in <module>
+    with open("../resources/website/all_products.json") as json_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '../resources/website/all_products.json'
+
+Go to python_3 folder with cli command --> cd python_3
+run code --> python create_table.py (You have solved that error)
+
+2. Add data to the "Table" in Dynamo DB
+Step as below:
+a. edit batch_put.py (eg... <FMI1> with product name --> FoodProducts) to add items into "Explore items" in Dynamo DB.
+b. run code --> python python_3/batch_put.py (You will see DONE)
+If you see that error:
+Traceback (most recent call last):
+  File "C:\Users\saihe\Downloads\code (1)\python_3\batch_put.py", line 36, in <module>
+    with open("../resources/website/all_products.json") as json_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '../resources/website/all_products.json'
+
+Go to python_3 folder with cli command --> cd python_3
+run code --> python batch_put.py (You have solved that error)
+
+3. Add "Indexes" to "Tables" in DynamoDB (eg. FoodProducts)
+If there is no indexes in tables in DynamoDB
+Steps as below:
+a. edit add_gsi.py (eg... <FMI1> with key --> HASH and TableName with product name --> FoodProducts also if needed)
+b. run code --> python python3/add_gsi.py (You will see DONE)
+If you do not see anything change, click refresh button with refresh icon.
+And you need to wait to be Active at "Status".
+
+Yay congratulation, you have done Dynamo DB part Here >_<
+
+Step 4. REST APIs with API Gateway
+
+1. Create API in API Gate way
+Steps as below:
+a. Copy this link and paste to your browser (https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/CUR-TF-200-ACCDEV-2-91558/04-lab-api/code.zip)
+b. Extract zip file and Rename folder to REST_API and Open in VsCode
+c. edit create_products_api.py (eg... <FMI> with service name --> apigateway)
+Service names example:
+(i) "s3" - Amazon S3
+(ii) "ec2" - Amazon EC2
+(iii) "lambda" - AWS Lambda
+(iv) "dynamodb" - Amazon DynamoDB
+(v) "sns" - Amazon Simple Notification Service
+(vi) "sqs" - Amazon Simple Queue Service
+(vii) "cloudwatch" - Amazon CloudWatch
+(viii) "rds" - Amazon Relational Database Service
+(ix) "apigateway" - Amazon API Gateway v1 (REST APIs)
+(x) "apigatewayv2" - Amazon API Gateway v2 (HTTP APIs and WebSocket APIs)
+e. run code --> cd python3 --> python create_products_api.py (You will see DONE)
+f. edit create_on_offer_api.py (eg... <FMI_1> with api_id --> fa8i4mwxl7 and <FMI_2> with parent_id or resource_id --> u6iceg1pj7)
+g. run code --> python create_on_offer_api.py (You will see DONE)
+h. edit create_report_api.py (eg... <FMI_1> with api_id --> fa8i4mwxl7)
+i. run code --> python create_on_offer_api.py (You will see DONE)
+Yay, You have added All the API to API Gateway.
+You will see at Resources in API Gateway as below:
+/ --
+    |
+    |
+ /create_report
+   POST
+    |
+    |
+ /products --
+   GET       |
+             |
+   	/on_offer
+     	  GET
+
+
+j. To test your api as below:
+
+(i) / --
+    	|
+    	|
+     /create_report
+       POST
+        |
+        |
+     /products
+       GET  <---- Click on this
+
+(ii) You will see the navigate bar like --> Method request, Integration request, Integration response, Method response, Test 
+(iii) Click on Test and Click on "Test" Button  
+             
+
+
+
+
+
+2. Deploy API
+Step as below:
+a. Click on "Deploy API" button in "Resources" side bar in API Gateway
+b. Select *New Stage* at the Stage and Add the Stage name and Can provide Deployment Description and Click on "Deploy" button
+c. You will see the new stage at the left side bar "Stages" in API Gateway
+d. Copy "Invoke URL" in that Stage and go to "config.js" file in website folder in resources folder in code folder or Dynamo DB folder or REST_API folder. (code/resources/website/config.js)
+e. edit config.js file (eg. API_GW_BASE_URL_STR: null ---> API_GW_BASE_URL_STR: "https://fa8i4mwxl7.execute-api.us-east-1.amazonaws.com/prod",)
+f. run cli command --> aws s3 cp resources/website/config.js s3://<bucket-name> (Update config.js file in your bucket in S3)
+
+Yay, You have connected with API but there is some issue that you will see in website the it doesn't show all products if you also test in api gateway, you will see it shows only few products
+
+3. To Sove that issue we have to use AWS Lambda
+Step as below:
+a. Go to get_all_products_code.py in python_3 folder in code.zip folder.
+b. edit get_all_products_code.py (eg. <FMI_1> with tale name --> FoodProducts, <FMI_2> with Indexe name --> special_GSI)
+d. make that get_all_products_code.py to zip file with 7-zip or (WinRAR or PeaZip or so on)
+e. run cli command --> aws s3 cp python_3/get_all_products_code.zip s3://<bucket-name> (send zip file which you have created to your bucket in S3)
+After you have sent zip file to the Bucket folder, you have to do this get_all_products_code.zip able to use in Aws Lambda (Follow the next steps to do this)
+f. go to "IMA" in AWS and go to "Roles" at the left side bar and Click on "Create role" to create new role
+And Select Trusted entity type --> AWS service and In Use case, Service or use case --> Lambda and Click on "Next" Button
+And Select "AmazonDynamoDBReadOnlyAccess" and Click on "Next" button
+And Add the role name (eg. name --> LambdaAccessToDynamoDB) and Add description (eg. description --> Allows Lambda functions to call AWS services on your behalf.) and Click on "Create Role" button.
+Now, You have created Roles in AWS IAM
+g. Click on "LambdaAccessToDynamoDB" which you have named in Roles and Copy ARN url(eg. arn:aws:iam::831926586385:role/LambdaAccessToDynamoDB)
+And go to get_all_products_wrapper.py and paste the ARN url which you have copied to <FMI_1> (eg. ROLE = 'arn:aws:iam::831926586385:role/LambdaAccessToDynamoDB')
+And do comment to "BUCKET" in get_all_products_wrapper.py (eg. #BUCKET = subprocess.getoutput('aws s3api list-buckets --query "Buckets[].Name" | grep s3bucket | tr -d "," | xargs'))
+And add new "BUCKET" (eg. BUCKET = '<bucket-name>' --> BUCKET = 'bad6520061project')
+h. run cli command --> cd python_3 --> python get_all_products_wrapper.py (You will see DONE)
+i. Go to AWS Lambda (You will see get_all_product) and Click on that get_all_product (You will see source codes of get_all_products_code.py in Lambda).
+And Click on "Create new test event" at "TEST EVENTS [SELECTED: PRODUCT]" in "Code source" 
+And At Create new test event, add Event name (eg. name --> Product) 
+And Click on "Save" button
+After that, You will see that name (eg. Product..., so on) on "TEST EVENTS [SELECTED: PRODUCT]" and Click on "Run" button with "Run" icon.
+You will see the Output result as below:
+{
+Status: Succeeded
+Test Event Name: Product
+}
+j. Go to AWS API Gateway and do steps as below:
+
+(i) / --
+    	|
+    	|
+     /create_report
+       POST
+        |
+        |
+     /products
+       GET  <---- Click on this
+
+(ii) You will see the navigate bar like --> Method request, Integration request, Integration response, Method response, Test 
+(iii) Click on Integration request 
+And Click on "Edit" Button at "Integration request settings" 
+And Select "Lambda Function" at "Method details" 
+And Select your lambda (eg. arn:aws:lambda:us-east-1:831926586385:function:get_all_products) at "Lambda function" 
+And Click on "Save" button.
+(iv) Test your Api again (If you forget how to test, Go back to Step 4, 1 , j)
+You will see all the products as result.
+
+k. next step:
+
+(i) / --
+    	|
+    	|
+     /create_report
+       POST
+        |
+        |
+     /products <---- Click on this
+       GET  
+(ii) Select "GET" at "Methods" and Click on "Enable CORS"
+And Select(Tick) Default 4xx ,Default 5xx and GET
+And Click on "Save" button.
+After that you will see like below:
+
+/ --
+    |
+    |
+ /create_report
+   POST
+    |
+    |
+ /products --
+   GET       |
+   OPTIONS   |
+   	/on_offer
+     	  GET
+
+l. Do the same thing on /on_offer like Step j and k but you have to add something at step j, (iii) for /on_offer as below: (because /products is the parent of /on_offer) 
+Step j (iii) Click on Integration request 
+And Click on "Edit" Button at "Integration request settings" 
+And Select "Lambda Function" at "Method details" and Select your lambda (eg. arn:aws:lambda:us-east-1:831926586385:function:get_all_products) at "Lambda function" 
+And Select "Method request passthrough" at "Generate template" at "Mapping templates" 
+And copy this --> {"path": "$context. resourcePath"}
+And Delete all codes in "Template body" at "Mapping templates" 
+And paste --> {"path": "$context. resourcePath"} <-- to "Template body" at "Mapping templates" 
+And Click on "Save" button.
+(iv) Test your Api again (If you forget how to test, Go back to Step 4, 1 , j)
+You will see all the products as result.
+
+*And Don't forget to do like Step h*
+
+After that you will see like below:
+
+/ --
+    |
+    |
+ /create_report
+   POST
+    |
+    |
+ /products --
+   GET       |
+   OPTIONS   |
+   	/on_offer
+     	  GET
+	  OPTIONS
+
+m. Do the same thing for create_report_code.py and create_report_wrapper.py in python_3 folder in the code.zip like Step 3, (a) to (j)
+*When you select lambda at Step 3, j, (iii), You have to select for lambda for report*
+n. Deploy again as below:
+
+/ --   <----- Click on this
+    |
+    |
+ /create_report
+   POST
+    |
+    |
+ /products --
+   GET       |
+   OPTIONS   |
+   	/on_offer
+     	  GET
+	  OPTIONS
+
+And Click on "Deploy API" button 
+And Select stage which we have created before (eg. prod or something)
+And Click on "Deploy" button
+
+o. Go to "Bucket Permission" in AWS S3 and Click on Edit at "Bucket Policy" 	
+Unselect this three: 
+- Block public access to buckets and objects granted through new access control lists (ACLs)
+- Block public access to buckets and objects granted through any access control lists (ACLs)
+- Block public and cross-account access to buckets and objects through any public bucket or access point policies
+Click Save
+
+p. Got to public_policy.json in resources folder in code.zip (code/resources/public_policy.json)
+Edit id address (eg. 49.49.213.332./32 --> 0.0.0.0/0) and save file
+Go to permission.py in resources folder in code.zip (code/resources/permission.py)
+run code --> python permissions.py (You will see DONE)
+After this, when you see he website you will see Access Denied error (to solve this error follow next step p) 
+
+Step 5
+
+1. Go to your Bucket, Click on "Properties" in your bucket navigate bar
+Click on "Edit" at "Static website hosting" in "Properties" in your Bucket
+Add Select "Enable"
+Add index.html or main.html (your main website file) in "Index document"
+And Click on "Save change" button
+
+2. Go to your Bucket, Click on "Properties" in your bucket navigate bar
+And Go to "Static website hosting" (You will see you website link at "Bucket website endpoint" like this --> http://bad6520051project.s3-website-us-east-1.amazonaws.com)
+
+You have done everything your website will work everywhere >_<
+
+Final Step
+
+1. Go to AWS CloudFront
+Click on "Create CloudFront distribution" button or "Create distribution"
+Select you BUCKET at "Origin domain" in "Origin"
+Select "Redirect HTTP or HTTPS" at "Viewer protocol policy" in Viewer
+Select "Enable security protections" at "Web Application Firewall (WAF)"
+Click on "Create distribution" button 
+
+2. In your CloudFront's Distribution you will see your Distribution which you have done at Step 1 (eg. E2WOW9912336NA)
+Click on that distribution
+Go to "General" at the top navigation bar
+Copy "Distribution domain name" url at "Details" in "General" (eg. https://d1y3ks0596kha2.cloudfront.net)
+Paste to your browser (eg. Chrome or Safari or MF)
+Finally You will see you website 
+
+But in exam you need to check instruction which one you have to submit CloudFront url (https://d1y3ks0596kha2.cloudfront.net) or hosting url (http://bad6520051project.s3-website-us-east-1.amazonaws.com)
+
+Enjoy your exam ! :D
+
+
+
